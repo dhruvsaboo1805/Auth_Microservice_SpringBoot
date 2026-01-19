@@ -1,16 +1,15 @@
 package com.example.Spring.Security.dto;
 
-import com.example.Spring.Security.enums.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequestDTO {
+@Builder
+public class RegisterResponseDTO {
     private String email;
     private String password;
 }
