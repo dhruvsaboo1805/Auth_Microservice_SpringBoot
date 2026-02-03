@@ -1,22 +1,22 @@
 package com.example.Spring.Security.config.security;
 
-import com.example.Spring.Security.enums.RoleType;
+import com.example.Spring.Security.entity.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class JWTUtil {
     @Value("${jwt.secret}")
     private String secret;
@@ -24,10 +24,13 @@ public class JWTUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    public String generateToken(String email , Set<RoleType> roles) {
+    public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("email", email);
-        claims.put("roles", roles.stream().map(RoleType::name).collect(Collectors.toList()));
+        claims.put("email", userDetails.getUsername());
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        claims.put("roles", roles);
         return createToken(claims);
     }
 

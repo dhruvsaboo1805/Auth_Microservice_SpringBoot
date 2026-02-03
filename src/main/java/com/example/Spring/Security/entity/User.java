@@ -1,6 +1,5 @@
 package com.example.Spring.Security.entity;
 
-import com.example.Spring.Security.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +28,5 @@ public class User {
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
-    private Set<RoleType> roles;
+    private Set<Role> roles;
 }

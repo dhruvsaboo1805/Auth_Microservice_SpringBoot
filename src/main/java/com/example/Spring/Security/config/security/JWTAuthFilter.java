@@ -25,6 +25,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         log.info("Processing JWT authentication request");
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
@@ -46,6 +47,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid JWT token");
+                return;
             }
         }
 
@@ -59,7 +61,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                     log.info("JWT token validated successfully");
                     UsernamePasswordAuthenticationToken authenticationToken = new
                             UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     // fill the SecurityContext with user details
@@ -81,5 +82,4 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
         log.info("JWT authentication request processed successfully");
     }
-
 }

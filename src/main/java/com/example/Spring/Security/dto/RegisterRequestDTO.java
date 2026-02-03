@@ -1,6 +1,5 @@
 package com.example.Spring.Security.dto;
 
-import com.example.Spring.Security.enums.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

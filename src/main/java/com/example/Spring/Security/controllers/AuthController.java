@@ -6,9 +6,10 @@ import com.example.Spring.Security.config.security.JWTUtil;
 import com.example.Spring.Security.dto.AuthenticationRequestDTO;
 import com.example.Spring.Security.dto.RegisterRequestDTO;
 import com.example.Spring.Security.dto.RegisterResponseDTO;
-import com.example.Spring.Security.enums.RoleType;
+import com.example.Spring.Security.entity.Role;
 import com.example.Spring.Security.service.AuthService;
 import com.example.Spring.Security.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -44,11 +46,10 @@ public class AuthController {
 
         UserDetails userDetails = authService.loadUserByUsername(loginUserDTO.getEmail());
 
-        Set<RoleType> roles = userDetails.getAuthorities().stream().map(auth -> RoleType.valueOf(auth.getAuthority())).collect(Collectors.toSet());
-
+        //Set<Role> roles = userDetails.getAuthorities().stream().map(auth -> Role.valueOf(auth.getAuthority())).collect(Collectors.toSet());
+        //log.info("roles {}", roles);
         String token = jwtUtil.generateToken(
-                userDetails.getUsername(),
-                roles);
+                userDetails);
 
         return ResponseEntity.ok(token);
 

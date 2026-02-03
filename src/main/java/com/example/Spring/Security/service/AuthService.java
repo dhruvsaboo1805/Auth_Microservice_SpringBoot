@@ -32,6 +32,7 @@ public class AuthService implements UserDetailsService {
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(User user) {
+        log.info("inside mapToUserAuthorities function -> mapRolesToAuthorities {}", user.getRoles());
         return user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
                 .collect(Collectors.toList());

@@ -1,7 +1,6 @@
 package com.example.Spring.Security.repository;
 
 import com.example.Spring.Security.entity.User;
-import com.example.Spring.Security.enums.RoleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

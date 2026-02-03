@@ -1,6 +1,6 @@
 package com.example.Spring.Security.dto;
 
-import com.example.Spring.Security.enums.RoleType;
+import com.example.Spring.Security.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,5 +19,5 @@ public class AuthenticationResponseDTO {
     private String token;
     @Builder.Default
     private String type = "Bearer";
-    private Set<RoleType> roles;
+    private Set<Role> roles;
 }
