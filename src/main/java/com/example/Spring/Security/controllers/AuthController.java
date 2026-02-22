@@ -1,15 +1,14 @@
 package com.example.Spring.Security.controllers;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.example.Spring.Security.config.security.JWTUtil;
-import com.example.Spring.Security.dto.AuthenticationRequestDTO;
-import com.example.Spring.Security.dto.RegisterRequestDTO;
-import com.example.Spring.Security.dto.RegisterResponseDTO;
-import com.example.Spring.Security.entity.Role;
+import com.example.Spring.Security.dto.*;
+import com.example.Spring.Security.entity.User;
+import com.example.Spring.Security.repository.UserRepository;
 import com.example.Spring.Security.service.AuthService;
+import com.example.Spring.Security.service.TowFactorAuthService;
 import com.example.Spring.Security.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +30,8 @@ public class AuthController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final TowFactorAuthService twoFactorAuthService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequestDTO registerUserDTO) {
@@ -39,19 +40,65 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody AuthenticationRequestDTO loginUserDTO) {
+    public ResponseEntity<?> loginUser(
+            @RequestBody AuthenticationRequestDTO loginUserDTO) {
+
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        loginUserDTO.getEmail(),
+                        loginUserDTO.getPassword()
+                )
         );
 
-        UserDetails userDetails = authService.loadUserByUsername(loginUserDTO.getEmail());
+        User user = userRepository.findByEmail(loginUserDTO.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        //Set<Role> roles = userDetails.getAuthorities().stream().map(auth -> Role.valueOf(auth.getAuthority())).collect(Collectors.toSet());
-        //log.info("roles {}", roles);
-        String token = jwtUtil.generateToken(
-                userDetails);
+        if (user.isTwoFactorEnabled()) {
+            return ResponseEntity.ok(
+                    AuthenticationResponseDTO.builder()
+                            .status("OTP_REQUIRED")
+                            .email(user.getEmail())
+                            .password(user.getPassword())
+                            .build()
+            );
+        }
 
-        return ResponseEntity.ok(token);
-
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body("User LoggedIn Successfully");
     }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpRequest request) {
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean valid = twoFactorAuthService.verifyCode(
+                user.getTwoFactorSecret(),
+                request.getOtp()
+        );
+
+        if (!valid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid OTP");
+        }
+
+        UserDetails userDetails = authService.loadUserByUsername(user.getEmail());
+
+        String token = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(
+                AuthenticationResponseDTO.builder()
+                        .email(userDetails.getUsername())
+                        .password(userDetails.getPassword())
+                        .token(token)
+                        .type("Bearer")
+                        .status("SUCCESS")
+                        .build()
+        );
+    }
+
+
+
 }

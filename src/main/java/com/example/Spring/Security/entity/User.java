@@ -29,4 +29,11 @@ public class User {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
     private Set<Role> roles;
+
+    // for 2FA
+    @Column(name = "two_factor_enabled")
+    private boolean twoFactorEnabled;
+
+    @Column(name = "two_factor_secret")
+    private String twoFactorSecret;
 }

@@ -2,6 +2,7 @@ package com.example.Spring.Security.controllers;
 
 import com.example.Spring.Security.entity.User;
 import com.example.Spring.Security.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,16 +25,14 @@ public class UserController {
     @GetMapping("/profile")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<?> getUserProfile() {
-        log.info("Fetching user profile");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String email = authentication.getName();
 
-        log.info("Fetching user profile for user: {}", email);
-
         User user = userService.findByEmail(email);
-        log.info("User profile fetched successfully for user: {}", user.getEmail());
-        return ResponseEntity.ok(user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("User with email:" + user.getEmail() + " has been fetched successfully");
     }
 
 }

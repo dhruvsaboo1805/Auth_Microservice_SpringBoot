@@ -1,21 +1,16 @@
 package com.example.Spring.Security.dto;
 
-import com.example.Spring.Security.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationResponseDTO {
+public class OtpRequest {
     private String email;
-    private String password;
-    private String token;
-    private String status;
-    @Builder.Default
-    private String type = "Bearer";
+    private int otp;
 }
+

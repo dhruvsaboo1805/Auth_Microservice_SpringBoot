@@ -29,7 +29,6 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         newUser.setRoles(Set.of(Role.USER));
         userRepository.save(newUser);
-        log.info("New User: {}", newUser);
 
         return RegisterResponseDTO.builder().email(newUser.getEmail()).password(newUser.getPassword()).build();
 

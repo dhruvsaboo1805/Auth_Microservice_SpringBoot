@@ -32,7 +32,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         String email = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
-            log.info("Extracted JWT: {}", jwt);
 
             if(jwt.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -78,7 +77,6 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        log.info("JWT authentication request processing completed");
         filterChain.doFilter(request, response);
         log.info("JWT authentication request processed successfully");
     }
