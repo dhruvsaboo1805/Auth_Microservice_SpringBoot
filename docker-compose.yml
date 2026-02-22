@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: auth-db
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: authDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "status", "-h", "localhost", "-u", "root", "--password=${DB_PASSWORD}"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  auth-service:
+    image: auth-service:1.0
+    container_name: auth-service
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
