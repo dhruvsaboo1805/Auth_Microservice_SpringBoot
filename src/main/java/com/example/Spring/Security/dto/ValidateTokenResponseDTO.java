@@ -1,17 +1,18 @@
 package com.example.Spring.Security.dto;
 
-import com.example.Spring.Security.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class RegisterResponseDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ValidateTokenResponseDTO {
     private String email;
-    private String password;
-    private Role role;
+    List<String> roles;
+    private boolean isValid;
 }

@@ -21,6 +21,7 @@ services:
       start_period: 40s
 
   auth-service:
+    build: .
     image: auth-service:1.0
     container_name: auth-service
     env_file:

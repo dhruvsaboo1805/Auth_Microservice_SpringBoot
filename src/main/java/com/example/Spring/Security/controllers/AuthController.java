@@ -2,23 +2,24 @@ package com.example.Spring.Security.controllers;
 
 import com.example.Spring.Security.config.security.JWTUtil;
 import com.example.Spring.Security.dto.*;
+import com.example.Spring.Security.entity.Role;
 import com.example.Spring.Security.entity.User;
 import com.example.Spring.Security.repository.UserRepository;
 import com.example.Spring.Security.service.AuthService;
 import com.example.Spring.Security.service.TowFactorAuthService;
 import com.example.Spring.Security.service.UserService;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -99,6 +100,35 @@ public class AuthController {
         );
     }
 
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(
+            @RequestHeader("Authorization") String authHeader) {
 
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing token");
+        }
 
+        try {
+            String token = authHeader.substring(7);
+            String email = jwtUtil.extractEmail(token);
+
+            if (jwtUtil.isTokenExpired(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired");
+            }
+
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            return ResponseEntity.ok(ValidateTokenResponseDTO.builder()
+                    .email(user.getEmail())
+                    .roles(user.getRoles().stream()
+                            .map(Role::name)
+                            .collect(Collectors.toList()))
+                    .isValid(true)
+                    .build());
+
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
 }
