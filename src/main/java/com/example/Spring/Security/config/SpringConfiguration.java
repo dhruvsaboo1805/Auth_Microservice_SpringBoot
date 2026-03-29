@@ -93,6 +93,7 @@ public class SpringConfiguration {
                         .requestMatchers("/api/v1/auth/register","/api/v1/auth/login" , "/api/v1/auth/verify-otp",
                                 "/api/v1/2fa/**", "/api/v1/auth/validate").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/user/**").hasAnyRole("USER","ADMIN")
                         .anyRequest().authenticated()
